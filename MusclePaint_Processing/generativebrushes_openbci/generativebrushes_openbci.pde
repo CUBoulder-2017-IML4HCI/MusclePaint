@@ -1,7 +1,6 @@
 /*********************************************************************
  
  Name: Jason Barles / Interaction Designer
- 
  Date: 31/Aug/2013
  
  Description: A generative art drawing tool with several patterns of
@@ -11,6 +10,10 @@
  
  Button code obtained and modified from 
  http://processing.org/examples/button.html
+ 
+ Modified for OpenBCI project for IML4HCI
+ Name: Annie Kelly
+ Date: 20/Feb/2017
  
  **********************************************************************/
 import oscP5.*; 
@@ -24,8 +27,13 @@ float virtualMouseX = width/2;
 float virtualMouseY = height/2;
 float pVirtualMouseX = width/2;
 float pVirtualMouseY = height/2;
+int acc = 1;
 
 boolean clear = false;
+
+float val1, val2, val3, val4, val5;
+
+color background = color(0, 0, 0);
 
 void setup() {
   size(800, 600);
@@ -37,9 +45,14 @@ void setup() {
 
 void draw() {
   if (clear == true){
-    background(0);
+    background(background);
     clear = false;
   }
+  
+  if (virtualMouseY >= height || virtualMouseY <= 0){
+    acc *= -1;
+  }
+  virtualMouseY += 5 * acc;
   
   switch(currentTool) {      
     case 1:      
@@ -167,10 +180,19 @@ void keyPressed(){
 }
 
 void oscEvent(OscMessage theOscMessage) {
-  println(theOscMessage);
-  pVirtualMouseX = virtualMouseX;
-  pVirtualMouseY = virtualMouseY;
-  currentTool = (int)theOscMessage.get(0).floatValue();
-  virtualMouseX = map(theOscMessage.get(1).floatValue(), 0.0, 1.0, 0.0, width);
-  virtualMouseY = map(theOscMessage.get(2).floatValue(), 0.0, 1.0, 0.0, height);
+  //println(theOscMessage);
+  if(theOscMessage.checkAddrPattern("/clear") == true){
+     clear = true;
+     background = color(random(0, 255), random(0, 255), random(0, 255));
+   }
+  else if(theOscMessage.checkAddrPattern("/switch") == true){ 
+      if (currentTool == 2){
+        currentTool = 1;
+      } else {
+        currentTool = 2;
+      }
+   }
+  else if(theOscMessage.checkAddrPattern("/continuous") == true){
+    virtualMouseX = map(theOscMessage.get(0).floatValue(), 0.0, 1.0, width/2, width);
+  }
 }
