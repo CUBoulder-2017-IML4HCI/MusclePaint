@@ -1,5 +1,4 @@
 /*********************************************************************
- 
  Name: Jason Barles / Interaction Designer
  Date: 31/Aug/2013
  
@@ -11,27 +10,23 @@
  Button code obtained and modified from 
  http://processing.org/examples/button.html
  
- Modified for OpenBCI project for IML4HCI
+ Modified for a machine learning for the visual arts project
  Name: Annie Kelly
  Date: 20/Feb/2017
- 
  **********************************************************************/
 import oscP5.*; 
  
 OscP5 oscP5; 
- 
-int currentTool = 1; // Set the default tool to be the first pattern
 ArrayList history;   // Define the history for pattern3 
-
-float virtualMouseX = width/2;
-float virtualMouseY = height/2;
-float pVirtualMouseX = width/2;
-float pVirtualMouseY = height/2;
-int acc = 1;
-
-boolean clear = false;
-
 float val1, val2, val3, val4, val5;
+ 
+float strokeX  = width/2;
+float strokeY  = height/2;
+float pstrokeX = width/2;
+float pstrokeY = height/2;
+int currentTool      = 1; // Set the default tool to be the first pattern
+int acc              = 1;
+boolean clear        = false;
 
 color background = color(0, 0, 0);
 
@@ -44,19 +39,19 @@ void setup() {
 }
 
 void draw() {
-  if (clear == true){
+  if (clear == true) {
     background(background);
     clear = false;
   }
   
-  if (virtualMouseY >= height || virtualMouseY <= 0){
+  if (strokeY >= height || strokeY <= 0) {
     acc *= -1;
   }
-  virtualMouseY += 5 * acc;
+  strokeY += 5 * acc;
   
   switch(currentTool) {      
     case 1:      
-      pattern1(virtualMouseX, virtualMouseY, 5, 18, color(204, 102, 0), color(0, 102, 153));
+      pattern1(strokeX, strokeY, 5, 18, color(204, 102, 0), color(0, 102, 153));
       break;
     case 2:      
       pattern2();
@@ -72,7 +67,6 @@ void draw() {
       break;              
     }
 }
-
 
 /* 
  Drawing tools
@@ -100,8 +94,8 @@ void pattern2() {
   // Randomise the colours during each frame
   stroke(random(0,255), random(0,255), random(0,255));
   strokeWeight(0.2);
-  line(virtualMouseX, virtualMouseY, pVirtualMouseX, pVirtualMouseY);
-  line(width-virtualMouseX, virtualMouseY, width-pVirtualMouseX, virtualMouseY); // Mirror
+  line(strokeX, strokeY, pstrokeX, pstrokeY);
+  line(width-strokeX, strokeY, width-pstrokeX, strokeY); // Mirror
 
   for(int i = 0; i < history.size(); i++){
     PVector p = (PVector) history.get(i);
@@ -109,18 +103,18 @@ void pattern2() {
     // Draw a line from the current mouse point to 
     // the historical point if the distance is less
     // than 50
-    if(dist(virtualMouseX, virtualMouseY, p.x, p.y) < 50){
-      line(virtualMouseX, virtualMouseY, p.x + extra, p.y + extra);
+    if(dist(strokeX, strokeY, p.x, p.y) < 50){
+      line(strokeX, strokeY, p.x + extra, p.y + extra);
     } 
     // repeat for the mirror line
-    if(dist(width-virtualMouseX, virtualMouseY, p.x, p.y) < 50){
-      line(width-virtualMouseX, virtualMouseY, p.x + extra, p.y + extra);
+    if(dist(width-strokeX, strokeY, p.x, p.y) < 50){
+      line(width-strokeX, strokeY, p.x + extra, p.y + extra);
     }      
   }
   
   // Add the current point to the history
-  history.add(new PVector(virtualMouseX, virtualMouseY));
-  history.add(new PVector(width-virtualMouseX, virtualMouseY));
+  history.add(new PVector(strokeX, strokeY));
+  history.add(new PVector(width-strokeX, strokeY));
 }
 
 // pattern3 draws hundreds and thousands food dressing
@@ -130,8 +124,8 @@ void pattern3(int offset) {
     // Randomise the colours during each frame
     stroke(random(0,255), random(0,255), random(0,255));
     // Draw a line of various lengths at the mouse point  
-    line(random(virtualMouseX, virtualMouseX+offset), random(virtualMouseY, virtualMouseY+offset), 
-         random(pVirtualMouseX, pVirtualMouseX+offset), random(pVirtualMouseY, pVirtualMouseY+offset));
+    line(random(strokeX, strokeX+offset), random(strokeY, strokeY+offset), 
+         random(pstrokeX, pstrokeX+offset), random(pstrokeY, pstrokeY+offset));
     offset = offset+10;
   }
 }
@@ -141,8 +135,8 @@ void pattern4(){
   noStroke();
   fill(random(0,255), random(0,255), random(0,255),10);
   // alter the width size
-  float widthDistance = abs(width/2 - virtualMouseX);
-  ellipse(virtualMouseX, virtualMouseY, widthDistance, widthDistance); 
+  float widthDistance = abs(width/2 - strokeX);
+  ellipse(strokeX, strokeY, widthDistance, widthDistance); 
 }
 
 // Code inspired by Mr Doob's project harmony.
@@ -150,11 +144,11 @@ void pattern4(){
 void pattern5(){
   // Randomise the colours during each frame
   stroke(255);
-  line(virtualMouseX, virtualMouseY, pVirtualMouseX, pVirtualMouseY);
+  line(strokeX, strokeY, pstrokeX, pstrokeY);
 
   for(int i = 0; i < history.size(); i++){
     PVector p = (PVector) history.get(i);
-    float d = dist(virtualMouseX, virtualMouseY, p.x, p.y);
+    float d = dist(strokeX, strokeY, p.x, p.y);
     // Adjust the stroke weight according to the distance
     strokeWeight(1/d);
     
@@ -163,12 +157,12 @@ void pattern5(){
     // than 25
     if(d < 25){
      if(random(10) < 5) // Skip some lines randomly
-        line(virtualMouseX, virtualMouseY, p.x + 2, p.y + 2);
+        line(strokeX, strokeY, p.x + 2, p.y + 2);
     } 
   }
   
   // Add the current point to the history
-  history.add(new PVector(virtualMouseX, virtualMouseY));
+  history.add(new PVector(strokeX, strokeY));
   strokeWeight(0.2);
 }
 
@@ -176,6 +170,9 @@ void keyPressed(){
   switch(key){
     case 'c':
       clear = true;
+      break;
+    default:
+      break;
   }
 }
 
@@ -193,6 +190,6 @@ void oscEvent(OscMessage theOscMessage) {
       }
    }
   else if(theOscMessage.checkAddrPattern("/continuous") == true){
-    virtualMouseX = map(theOscMessage.get(0).floatValue(), 0.0, 1.0, width/2, width);
+    strokeX = map(theOscMessage.get(0).floatValue(), 0.0, 1.0, width/2, width);
   }
 }
